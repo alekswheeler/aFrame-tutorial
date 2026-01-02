@@ -1,0 +1,109 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+  	<script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
+
+	  <style>
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 10;
+    }
+    .controls button {
+      width: 60px;
+      height: 60px;
+      margin: 5px;
+      font-size: 20px;
+      opacity: 0.8;
+    }
+  </style>
+  </head>
+  <body>
+	<a-scene>
+		<a-assets>
+    		<img id="boxTexture" src="https://i.imgur.com/mYmmbrp.jpg">
+			<img id="platinum" src="https://plus.unsplash.com/premium_photo-1675855723466-fd4729e23d5d?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
+			<img id="skyTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
+			<img id="groundTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg">
+		</a-assets>
+
+		<a-camera
+			id="camera"
+			position="0 1.6 0"
+			look-controls
+			wasd-controls="enabled: false">
+		</a-camera>
+
+		<a-entity gltf-model="./ImageToStl.com_shipping-container.gltf" position="0 0 -5"> </a-entity>
+
+		<!-- <a-box src="#boxTexture" position="0 3 -5" scale="2 2 2" rotation="0 45 45"></a-box> -->
+		<!-- <a-entity environment="preset: forest; dressingAmount: 500"></a-entity> -->
+		<!-- <a-sky src="#skyTexture"></a-sky> -->
+		<a-plane src="#groundTexture" rotation="-90 0 0" width="30" height="30" repeat="10 10"></a-plane>
+	</a-scene>
+
+	<div class="controls">
+	<button id="forward">↑</button><br>
+    <button id="left">←</button>
+    <button id="right">→</button><br>
+    <button id="back">↓</button>
+  </div>
+
+	<script>
+	const cam = document.querySelector('#camera');
+	const step = 0.2;
+
+	function move(dx, dz) {
+		const pos = cam.getAttribute('position');
+		cam.setAttribute('position', {
+		x: pos.x + dx,
+		y: pos.y,
+		z: pos.z + dz
+		});
+	}
+
+	function moveForward(speed) {
+		const cam = document.querySelector('#camera');
+		const dir = new THREE.Vector3();
+		cam.object3D.getWorldDirection(dir);
+
+		dir.y = 0;          // não voar
+		dir.normalize();
+
+		const pos = cam.getAttribute('position');
+		cam.setAttribute('position', {
+			x: pos.x + dir.x * speed,
+			y: pos.y,
+			z: pos.z + dir.z * speed
+		});
+	}
+
+	function strafe(speed) {
+		const cam = document.querySelector('#camera');
+		const dir = new THREE.Vector3();
+		cam.object3D.getWorldDirection(dir);
+
+		dir.y = 0;
+		dir.normalize();
+
+		// vetor perpendicular (cross product)
+		const right = new THREE.Vector3();
+		right.crossVectors(dir, cam.object3D.up);
+
+		const pos = cam.getAttribute('position');
+		cam.setAttribute('position', {
+			x: pos.x + right.x * speed,
+			y: pos.y,
+			z: pos.z + right.z * speed
+		});
+	}
+
+	forward.onclick = () => moveForward(-0.2);
+	back.onclick    = () => moveForward(0.2);
+	left.onclick    = () => strafe(0.2);
+	right.onclick   = () => strafe(-0.2);
+	</script>
+
+  </body>
+</html>
